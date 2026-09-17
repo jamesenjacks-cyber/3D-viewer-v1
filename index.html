@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Apartment</title>
+<style>
+  :root{
+    --ink:#e9e6df; --dim:#8d8880; --bg:#0d0f12;
+    --line:#26282c; --accent:#c8ff4d;
+  }
+  *{box-sizing:border-box}
+  html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  #app{display:block;width:100%;height:100%;background:var(--bg);touch-action:none}
+
+  #panel{position:fixed;top:0;left:0;height:100%;width:318px;max-width:86vw;
+    background:rgba(13,15,18,.9);backdrop-filter:blur(14px);border-right:1px solid var(--line);
+    padding:22px 22px 30px;overflow-y:auto;z-index:10;transition:transform .22s ease}
+  #panel.away{transform:translateX(-101%)}
+  h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0 0 3px}
+  .sub{font-size:12.5px;color:var(--dim);margin:0 0 18px;line-height:1.5}
+
+  #status{font-size:12.5px;line-height:1.5;padding:10px 12px;margin-bottom:16px;
+    border:1px solid var(--line);border-radius:8px;color:var(--dim)}
+  #status b{color:var(--ink);font-weight:500}
+  #status div{height:2px;background:#1e2126;border-radius:2px;margin-top:9px;overflow:hidden}
+  #status i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
+
+  #vr{width:100%;background:var(--accent);color:#12140c;border:0;border-radius:8px;
+    padding:13px 0;font:600 14px/1 inherit;cursor:pointer;margin-bottom:20px}
+  #vr:disabled{background:#1b1d20;color:var(--dim);cursor:default}
+
+  .grp{border-top:1px solid var(--line);padding-top:16px}
+  .grp h2{font-size:12.5px;font-weight:600;margin:0 0 13px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .row label{font-size:12.5px;color:var(--dim)}
+  .row output{font-size:12px;font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
+  .slider{margin-bottom:14px}
+  .slider .row{margin-bottom:5px}
+  input[type=range]{width:100%;accent-color:var(--accent);margin:0;display:block}
+  input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;margin:0}
+  .check{margin-bottom:13px}
+
+  button.ghost{width:100%;background:transparent;color:var(--ink);border:1px solid var(--line);
+    border-radius:8px;padding:11px 0;font:500 12.5px/1 inherit;cursor:pointer;margin-top:6px}
+  button.ghost:hover{border-color:#3a3d42}
+  button.ghost:active{background:#1a1c1f}
+
+  dl{margin:0;font-size:12.5px;line-height:1.7;color:var(--dim)}
+  dt{float:left;clear:left;width:100px;color:var(--ink);font-weight:500}
+  dd{margin:0 0 0 108px}
+  .grp + .grp{margin-top:18px}
+
+  #reopen{position:fixed;top:14px;left:14px;z-index:9;display:none;
+    background:rgba(13,15,18,.86);color:var(--ink);border:1px solid var(--line);
+    border-radius:8px;padding:9px 13px;font:500 12.5px/1 inherit;cursor:pointer}
+  #panel.away ~ #reopen{display:block}
+
+  .stick{position:fixed;bottom:26px;width:132px;height:132px;border-radius:50%;
+    border:1px solid rgba(233,230,223,.22);background:rgba(13,15,18,.28);
+    backdrop-filter:blur(6px);z-index:8;display:none;touch-action:none;
+    -webkit-user-select:none;user-select:none}
+  .stick b{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;
+    border-radius:50%;background:rgba(233,230,223,.5);pointer-events:none;
+    transition:background .12s}
+  .stick.on b{background:var(--accent)}
+  .stick s{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font:500 10px/1.5 inherit;color:rgba(233,230,223,.5);text-decoration:none;
+    text-align:center;pointer-events:none;white-space:pre}
+  .stick.on s{opacity:0}
+  #stickL{left:26px}
+  #stickR{right:26px}
+  body.touch .stick{display:block}
+  body.inxr .stick{display:none}
+
+  @media (max-width:520px){dt{float:none;width:auto}dd{margin-left:0;margin-bottom:8px}}
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "playcanvas": "https://cdn.jsdelivr.net/npm/playcanvas@2.22.1/build/playcanvas.mjs"
+  }
+}
+</script>
+</head>
+<body>
+
+<canvas id="app"></canvas>
+
+<aside id="panel">
+  <h1>Apartment</h1>
+  <p class="sub">Fly through the scan. Tune it once, copy a link, send that link.</p>
+
+  <div id="status">Starting.<div><i></i></div></div>
+  <button id="vr" disabled>Checking headset</button>
+
+  <div class="grp">
+    <h2>Fit the scan</h2>
+    <div class="slider">
+      <div class="row"><label for="scale">Scale</label><output id="scaleOut">1.00</output></div>
+      <input type="range" id="scale" min="0.02" max="3" step="0.01" value="1">
+    </div>
+    <div class="slider">
+      <div class="row"><label for="height">Floor height</label><output id="heightOut">0.00</output></div>
+      <input type="range" id="height" min="-30" max="30" step="0.1" value="0">
+    </div>
+    <div class="row check">
+      <label for="flip">Scan is upside down</label>
+      <input type="checkbox" id="flip" checked>
+    </div>
+    <button class="ghost" id="mark">Start clients where I am now</button>
+    <button class="ghost" id="copy">Copy link with these settings</button>
+  </div>
+
+  <div class="grp">
+    <h2>Comfort</h2>
+    <div class="slider">
+      <div class="row"><label for="speed">Flight speed</label><output id="speedOut">1.5</output></div>
+      <input type="range" id="speed" min="0.1" max="12" step="0.1" value="1.5">
+    </div>
+    <div class="slider">
+      <div class="row"><label for="turn">Turn speed</label><output id="turnOut">110</output></div>
+      <input type="range" id="turn" min="30" max="300" step="5" value="110">
+    </div>
+    <div class="row check">
+      <label for="snap">Turn in steps instead</label>
+      <input type="checkbox" id="snap">
+    </div>
+  </div>
+
+  <div class="grp">
+    <h2>Headset</h2>
+    <dl>
+      <dt>Left stick</dt><dd>up / down, and turn</dd>
+      <dt>Right stick</dt><dd>fly where you look</dd>
+      <dt>Right trigger</dt><dd>speed up</dd>
+      <dt>Left trigger</dt><dd>slow down</dd>
+      <dt>A or X</dt><dd>back to the start</dd>
+    </dl>
+  </div>
+
+  <div class="grp">
+    <h2>Phone and tablet</h2>
+    <dl>
+      <dt>Left stick</dt><dd>up / down, and turn</dd>
+      <dt>Right stick</dt><dd>fly where you look</dd>
+      <dt>Drag screen</dt><dd>look around</dd>
+    </dl>
+  </div>
+
+  <div class="grp">
+    <h2>Desktop</h2>
+    <dl>
+      <dt>Click</dt><dd>take the mouse</dd>
+      <dt>W A S D</dt><dd>fly</dd>
+      <dt>R / F</dt><dd>up / down</dd>
+      <dt>Q / E</dt><dd>turn</dd>
+      <dt>Shift</dt><dd>speed up</dd>
+      <dt>H</dt><dd>hide this panel</dd>
+    </dl>
+  </div>
+</aside>
+
+<div class="stick" id="stickL"><s>up down
+turn</s><b></b></div>
+<div class="stick" id="stickR"><s>fly</s><b></b></div>
+
+<button id="reopen">Settings</button>
+
+<script type="module">
+import {
+  AppBase, AppOptions, Asset, CameraComponentSystem, Color,
+  DEVICETYPE_WEBGL2, Entity, FILLMODE_FILL_WINDOW, GSplatComponentSystem,
+  GSplatHandler, RESOLUTION_AUTO, TextureHandler, Vec3, XrManager,
+  XRSPACE_LOCALFLOOR, XRTYPE_VR, createGraphicsDevice
+} from 'playcanvas';
+
+/* ---------- settings, all overridable from the URL ---------- */
+const P = new URLSearchParams(location.search);
+const num = (k, d) => { const v = parseFloat(P.get(k)); return Number.isFinite(v) ? v : d; };
+
+const SPLAT_URL = P.get('splat') || './splat/lod-meta.json';
+
+const cfg = {
+  scale:  num('scale', 1),
+  height: num('height', 0),
+  speed:  num('speed', 1.5),
+  turn:   num('turn', 110),          // degrees per second, smooth turning
+  flip:   P.get('flip') !== '0',
+  snap:   P.get('snap') === '1'      // off by default: smooth turning
+};
+
+// Where a visitor starts. Seeded from the pose authored in SuperSplat.
+const start = {
+  x: num('x', -2.303),
+  y: num('y', 9.0),
+  z: num('z', 1.569),
+  yaw: num('yaw', 0)
+};
+
+const SNAP_STEP = 30;    // degrees per flick when snap turning is on
+const DEADZONE  = 0.15;
+
+/* ---------- status ---------- */
+const canvas = document.querySelector('#app');
+const statusEl = document.querySelector('#status');
+const say = (html, pct) => {
+  statusEl.innerHTML = html + '<div><i></i></div>';
+  if (pct !== undefined) statusEl.querySelector('i').style.width = Math.round(pct * 100) + '%';
+};
+
+/* ---------- boot ---------- */
+// WebGL2 rather than WebGPU: WebXR sessions are reliable on it in the Quest browser.
+const device = await createGraphicsDevice(canvas, {
+  deviceTypes: [DEVICETYPE_WEBGL2],
+  antialias: false,        // splats gain nothing from it and it costs frames
+  xrCompatible: true
+});
+device.maxPixelRatio = Math.min(window.devicePixelRatio, 2);
+
+const opts = new AppOptions();
+opts.graphicsDevice = device;
+opts.componentSystems = [CameraComponentSystem, GSplatComponentSystem];
+opts.resourceHandlers = [TextureHandler, GSplatHandler];
+opts.xr = XrManager;      // without this app.xr is null and VR never starts
+
+const app = new AppBase(canvas);
+app.init(opts);
+app.setCanvasFillMode(FILLMODE_FILL_WINDOW);
+app.setCanvasResolution(RESOLUTION_AUTO);
+app.start();
+
+/* ---------- rig and camera ----------
+   In XR, PlayCanvas writes the headset pose onto the camera's LOCAL transform.
+   So the rig is the body: move the rig, the player moves.                     */
+const rig = new Entity('Rig');
+app.root.addChild(rig);
+
+const camera = new Entity('Camera');
+camera.addComponent('camera', {
+  clearColor: new Color(0.02, 0.025, 0.035),
+  fov: 75,
+  farClip: 2000
+});
+rig.addChild(camera);
+
+let pitch = 0;
+function goHome() {
+  rig.setPosition(start.x, start.y, start.z);
+  rig.setLocalEulerAngles(0, start.yaw, 0);
+  pitch = 0;
+  camera.setLocalPosition(0, 0, 0);
+  camera.setLocalEulerAngles(0, 0, 0);
+}
+goHome();
+
+window.addEventListener('resize', () => app.resizeCanvas());
+
+/* ---------- the scan ---------- */
+let splat = null;
+
+function applyFit() {
+  if (!splat) return;
+  splat.setLocalScale(cfg.scale, cfg.scale, cfg.scale);
+  splat.setLocalPosition(0, cfg.height, 0);
+  splat.setLocalEulerAngles(0, 0, cfg.flip ? 180 : 0);
+}
+
+const asset = new Asset('scan', 'gsplat', {
+  url: SPLAT_URL,
+  filename: SPLAT_URL.split('/').pop() || 'lod-meta.json'
+});
+
+asset.on('progress', (received, length) => {
+  if (length > 0) {
+    const p = Math.max(0, Math.min(1, received / length));
+    say('Loading <b>' + Math.floor(p * 100) + '%</b>', p);
+  }
+});
+
+asset.on('load', () => {
+  splat = new Entity('Splat');
+  splat.addComponent('gsplat', { asset });
+  app.root.addChild(splat);
+  applyFit();
+  say('Ready.', 1);
+});
+
+asset.on('error', (err) => {
+  console.error(err);
+  say('Could not load <b>' + SPLAT_URL + '</b>. Check the splat folder sits next to this page.');
+});
+
+say('Loading the scan.', 0);
+app.assets.add(asset);
+app.assets.load(asset);
+
+/* ---------- movement ---------- */
+const _fwd = new Vec3();
+const _rgt = new Vec3();
+const _mov = new Vec3();
+
+function fly(forward, strafe, lift, metres) {
+  _fwd.copy(camera.forward);          // full look direction, pitch included
+  _rgt.copy(camera.right);
+  _rgt.y = 0;
+  if (_rgt.lengthSq() < 1e-8) _rgt.set(1, 0, 0);
+  _rgt.normalize();
+
+  _mov.set(0, 0, 0).addScaled(_fwd, forward).addScaled(_rgt, strafe);
+  _mov.y += lift;
+
+  if (_mov.lengthSq() === 0) return;
+  _mov.normalize().mulScalar(metres);
+  rig.translate(_mov);
+}
+
+function turn(deg) {
+  // Pivot on the head, not the rig origin, so you spin on the spot.
+  const head = camera.getPosition();
+  const pos = rig.getPosition();
+  const dx = pos.x - head.x;
+  const dz = pos.z - head.z;
+  const r = deg * Math.PI / 180;
+  const c = Math.cos(r), s = Math.sin(r);
+  rig.setPosition(head.x + dx * c + dz * s, pos.y, head.z - dx * s + dz * c);
+  rig.rotate(0, deg, 0);
+}
+
+const dz = v => (Math.abs(v) < DEADZONE ? 0 : (v - Math.sign(v) * DEADZONE) / (1 - DEADZONE));
+
+/* ---------- headset input ---------- */
+let snapArmed = true;
+let homeDown = false;
+
+function xrInput(dt) {
+  if (!app.xr || !app.xr.active) return;
+
+  let L = null, R = null;
+  for (const src of app.xr.input.inputSources) {
+    if (!src.gamepad) continue;
+    if (src.handedness === 'left') L = src.gamepad;
+    if (src.handedness === 'right') R = src.gamepad;
+  }
+
+  const stick = g => (g && g.axes.length >= 4 ? [dz(g.axes[2]), dz(g.axes[3])] : [0, 0]);
+  const [lx, ly] = stick(L);
+  const [rx, ry] = stick(R);
+
+  const trig = g => (g && g.buttons[0] ? g.buttons[0].value : 0);
+  const speed = cfg.speed * (1 + trig(R) * 3) * (1 - trig(L) * 0.8);
+
+  if (rx || ry) fly(-ry, rx, 0, speed * dt);   // right stick: fly where you look
+  if (ly)       fly(0, 0, -ly, speed * dt);    // left stick up/down: vertical
+
+  if (cfg.snap) {                               // left stick left/right: turn
+    if (Math.abs(lx) > 0.7) {
+      if (snapArmed) { turn(-Math.sign(lx) * SNAP_STEP); snapArmed = false; }
+    } else if (Math.abs(lx) < 0.4) {
+      snapArmed = true;
+    }
+  } else if (lx) {
+    turn(-lx * cfg.turn * dt);
+  }
+
+  const home = [L, R].some(g => g && g.buttons[4] && g.buttons[4].pressed);
+  if (home && !homeDown) goHome();
+  homeDown = home;
+}
+
+/* ---------- desktop input ---------- */
+const keys = new Set();
+window.addEventListener('keydown', (e) => {
+  if (e.metaKey || e.altKey) return;
+  if (e.code === 'KeyH') { panel.classList.toggle('away'); return; }
+  keys.add(e.code);
+});
+window.addEventListener('keyup', e => keys.delete(e.code));
+window.addEventListener('blur', () => keys.clear());
+
+canvas.addEventListener('click', () => {
+  if (isTouch) return;
+  if (!app.xr || !app.xr.active) canvas.requestPointerLock();
+});
+window.addEventListener('mousemove', (e) => {
+  if (document.pointerLockElement !== canvas) return;
+  rig.rotate(0, -e.movementX * 0.13, 0);
+  pitch = Math.max(-89, Math.min(89, pitch - e.movementY * 0.13));
+  camera.setLocalEulerAngles(pitch, 0, 0);
+});
+
+function deskInput(dt) {
+  if (app.xr && app.xr.active) return;
+  const on = c => (keys.has(c) ? 1 : 0);
+  const fwd    = on('KeyW') - on('KeyS');
+  const strafe = on('KeyD') - on('KeyA');
+  const lift   = on('KeyR') - on('KeyF');
+  const spin   = on('KeyQ') - on('KeyE');
+  const fast   = (keys.has('ShiftLeft') || keys.has('ShiftRight')) ? 4 : 1;
+
+  if (fwd || strafe || lift) fly(fwd, strafe, lift, cfg.speed * fast * dt);
+  if (spin) turn(spin * cfg.turn * dt);
+}
+
+/* ---------- phone and tablet ----------
+   Same mapping as the headset: left stick is height and turning,
+   right stick flies where you are looking. Dragging the view aims.  */
+const isTouch = matchMedia('(pointer: coarse)').matches;
+if (isTouch) document.body.classList.add('touch');
+
+function makeStick(id) {
+  const el = document.querySelector('#' + id);
+  const knob = el.querySelector('b');
+  const state = { x: 0, y: 0, id: null };
+  const radius = 44;
+
+  const move = (e) => {
+    const r = el.getBoundingClientRect();
+    let dx = e.clientX - (r.left + r.width / 2);
+    let dy = e.clientY - (r.top + r.height / 2);
+    const len = Math.hypot(dx, dy);
+    if (len > radius) { dx = dx / len * radius; dy = dy / len * radius; }
+    knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+    state.x = dx / radius;
+    state.y = dy / radius;              // up is negative, same as a gamepad
+  };
+
+  const release = (e) => {
+    if (state.id !== e.pointerId) return;
+    state.id = null; state.x = 0; state.y = 0;
+    knob.style.transform = '';
+    el.classList.remove('on');
+  };
+
+  el.addEventListener('pointerdown', (e) => {
+    if (state.id !== null) return;
+    state.id = e.pointerId;
+    el.setPointerCapture(e.pointerId);
+    el.classList.add('on');
+    move(e);
+    e.preventDefault();
+  });
+  el.addEventListener('pointermove', (e) => { if (state.id === e.pointerId) move(e); });
+  el.addEventListener('pointerup', release);
+  el.addEventListener('pointercancel', release);
+
+  return state;
+}
+
+const stickL = makeStick('stickL');
+const stickR = makeStick('stickR');
+
+// Drag anywhere on the scene to aim.
+let lookId = null, lookX = 0, lookY = 0;
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' || lookId !== null) return;
+  lookId = e.pointerId; lookX = e.clientX; lookY = e.clientY;
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (lookId !== e.pointerId) return;
+  rig.rotate(0, -(e.clientX - lookX) * 0.16, 0);
+  pitch = Math.max(-89, Math.min(89, pitch - (e.clientY - lookY) * 0.16));
+  camera.setLocalEulerAngles(pitch, 0, 0);
+  lookX = e.clientX; lookY = e.clientY;
+});
+const endLook = (e) => { if (lookId === e.pointerId) lookId = null; };
+canvas.addEventListener('pointerup', endLook);
+canvas.addEventListener('pointercancel', endLook);
+
+let touchSnapArmed = true;
+
+function touchInput(dt) {
+  if (app.xr && app.xr.active) return;
+
+  if (stickR.x || stickR.y) fly(-stickR.y, stickR.x, 0, cfg.speed * dt);
+  if (stickL.y)             fly(0, 0, -stickL.y, cfg.speed * dt);
+
+  const lx = stickL.x;
+  if (cfg.snap) {
+    if (Math.abs(lx) > 0.7) {
+      if (touchSnapArmed) { turn(-Math.sign(lx) * SNAP_STEP); touchSnapArmed = false; }
+    } else if (Math.abs(lx) < 0.4) {
+      touchSnapArmed = true;
+    }
+  } else if (lx) {
+    turn(-lx * cfg.turn * dt);
+  }
+}
+
+app.on('update', (dt) => {
+  const step = Math.min(dt, 0.1);
+  xrInput(step);
+  deskInput(step);
+  touchInput(step);
+});
+
+/* ---------- VR button ---------- */
+const vrBtn = document.querySelector('#vr');
+
+function refreshVr() {
+  const ok = !!(app.xr && app.xr.isAvailable(XRTYPE_VR));
+  const active = !!(app.xr && app.xr.active);
+  document.body.classList.toggle('inxr', active);
+  vrBtn.disabled = !ok;
+  vrBtn.textContent = active ? 'Leave VR'
+    : ok ? 'Enter VR'
+    : 'No headset detected';
+}
+
+if (app.xr) {
+  app.xr.on('available:' + XRTYPE_VR, refreshVr);
+  app.xr.on('start', refreshVr);
+  app.xr.on('end', () => { goHome(); refreshVr(); });
+  app.xr.on('error', (err) => { console.error(err); say('VR failed to start: ' + err.message); });
+}
+refreshVr();
+
+vrBtn.addEventListener('click', () => {
+  if (!app.xr) return;
+  if (app.xr.active) { app.xr.end(); return; }
+  app.xr.start(camera.camera, XRTYPE_VR, XRSPACE_LOCALFLOOR, {
+    callback: (err) => { if (err) say('VR failed to start: ' + err.message); }
+  });
+});
+
+/* ---------- panel ---------- */
+const panel = document.querySelector('#panel');
+if (isTouch) panel.classList.add('away');
+document.querySelector('#reopen').onclick = () => panel.classList.remove('away');
+
+function slider(id, key, fmt) {
+  const input = document.querySelector('#' + id);
+  const out = document.querySelector('#' + id + 'Out');
+  input.value = cfg[key];
+  const sync = () => {
+    cfg[key] = parseFloat(input.value);
+    out.textContent = fmt(cfg[key]);
+    applyFit();
+  };
+  input.addEventListener('input', sync);
+  sync();
+}
+slider('scale',  'scale',  v => v.toFixed(2));
+slider('height', 'height', v => v.toFixed(2));
+slider('speed',  'speed',  v => v.toFixed(1));
+slider('turn',   'turn',   v => String(Math.round(v)));
+
+function check(id, key, after) {
+  const input = document.querySelector('#' + id);
+  input.checked = cfg[key];
+  input.addEventListener('change', () => { cfg[key] = input.checked; if (after) after(); });
+}
+check('flip', 'flip', applyFit);
+check('snap', 'snap');
+
+document.querySelector('#mark').onclick = (e) => {
+  const p = rig.getPosition();
+  start.x = p.x; start.y = p.y; start.z = p.z;
+  start.yaw = rig.getLocalEulerAngles().y;
+  e.target.textContent = 'Start point set';
+  setTimeout(() => { e.target.textContent = 'Start clients where I am now'; }, 2000);
+};
+
+document.querySelector('#copy').onclick = async (e) => {
+  const q = new URLSearchParams();
+  if (P.get('splat')) q.set('splat', P.get('splat'));
+  q.set('scale', cfg.scale);
+  q.set('height', cfg.height);
+  q.set('speed', cfg.speed);
+  q.set('turn', cfg.turn);
+  q.set('flip', cfg.flip ? '1' : '0');
+  q.set('snap', cfg.snap ? '1' : '0');
+  q.set('x', start.x.toFixed(3));
+  q.set('y', start.y.toFixed(3));
+  q.set('z', start.z.toFixed(3));
+  q.set('yaw', start.yaw.toFixed(1));
+  const link = location.origin + location.pathname + '?' + q;
+  try {
+    await navigator.clipboard.writeText(link);
+    e.target.textContent = 'Copied';
+  } catch {
+    prompt('Copy this link', link);
+  }
+  setTimeout(() => { e.target.textContent = 'Copy link with these settings'; }, 2200);
+};
+</script>
+</body>
+</html>
