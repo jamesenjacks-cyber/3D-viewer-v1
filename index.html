@@ -304,11 +304,14 @@ import {
      x y z yaw                where a visitor starts
    ========================================== */
 const SCENES = [
-  { id: 'apartment', name: 'Apartment', url: './splat/lod-meta.json',
-    scale: 1, height: 0, flip: true, x: -2.303, y: 9.0, z: 1.569, yaw: 0 }
+  { id: 'apartment', name: 'Apartment (Interior)', url: './splat/lod-meta.json',
+    scale: 1, height: 0, flip: true, x: -2.303, y: 9.0, z: 1.569, yaw: 0 },
 
-  // , { id: 'loft', name: 'Loft on Haagweg', url: './loft/lod-meta.json',
-  //     scale: 1, height: 0, flip: true, x: 0, y: 2, z: 0, yaw: 0 }
+  // Start pose taken from the SuperSplat export: camera at 2,2,-2 looking at the
+  // origin, which is a yaw of 135. Open with ?scene=korenbloem&tune=1 to fit it
+  // properly, then paste the copied line back over this one.
+  { id: 'korenbloem', name: 'De Korenbloem (Exterior)', url: './korenbloem/lod-meta.json',
+    scale: 1, height: 0, flip: true, x: 2, y: 2, z: -2, yaw: 135 }
 ];
 
 /* ---------- settings, all overridable from the URL ---------- */
