@@ -59,7 +59,7 @@
   #vrNote{font-size:11.5px;color:var(--dim);line-height:1.5;margin:0 0 20px}
   #vrPerfNote{font-size:11.5px;color:var(--dim);line-height:1.5;margin:4px 0 0}
   #handsNote{font-size:11.5px;color:var(--dim);line-height:1.5;margin:2px 0 0}
-  #walkNote{font-size:11.5px;color:var(--dim);line-height:1.5;margin:2px 0 0}
+  #droneNote{font-size:11.5px;color:var(--dim);line-height:1.5;margin:2px 0 0}
 
   .grp{border-top:1px solid var(--line);padding-top:16px}
   .grp h2{font-size:12.5px;font-weight:600;margin:0 0 13px}
@@ -110,6 +110,7 @@
   body.inxr #vrFloat{display:none}
   body.clean #vrFloat{display:none}
 
+  body.inxr #help{display:none}
   #xrPause,#xrReset{display:none}
   body.inxr #xrPause,body.inxr #xrReset{display:flex}
 
@@ -140,6 +141,78 @@
   body.touch .stick{display:block}
   body.inxr .stick{display:none}
   body.onehand #stickR{display:none}
+
+
+  /* ---------- how to move overlay ---------- */
+  #intro{position:fixed;inset:0;z-index:20;display:none;
+    background:rgba(8,9,11,.88);backdrop-filter:blur(12px);
+    align-items:center;justify-content:center;
+    padding:calc(16px + var(--padT)) 16px calc(16px + var(--padB))}
+  body.intro #intro{display:flex}
+  #introCard{width:100%;max-width:430px;max-height:100%;overflow-y:auto;
+    background:#12151a;border:1px solid var(--line);border-radius:14px;
+    padding:22px 20px 20px}
+  #introCard h2{font-size:18px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
+  #introCard .lede{font-size:12.5px;color:var(--dim);margin:0 0 18px;line-height:1.5}
+  #introCard.pick #stepHow{display:none}
+  #introCard.how #stepPick{display:none}
+
+  /* device picker */
+  #devGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .dev{display:flex;flex-direction:column;align-items:center;gap:8px;
+    background:transparent;border:1px solid var(--line);border-radius:10px;
+    padding:16px 8px;color:var(--ink);font:600 13px/1 inherit;cursor:pointer}
+  .dev:active{background:#1a1c1f}
+  .dev.now{border-color:var(--accent);color:var(--accent)}
+  .dev svg{width:34px;height:34px;display:block}
+
+  /* instruction blocks */
+  .how{border-top:1px solid var(--line);padding:14px 0 2px}
+  .how:first-of-type{border-top:0;padding-top:0}
+  .how svg.art{display:block;width:100%;height:auto;max-width:290px;margin:0 auto 8px}
+  .how b{display:block;font-size:13px;font-weight:600;margin-bottom:2px}
+  .how span{display:block;font-size:12.5px;color:var(--dim);line-height:1.5}
+
+  .cap{fill:#1e2228;stroke:rgba(233,230,223,.3);stroke-width:1.4}
+  .capT{fill:#e9e6df;font:600 13px ui-sans-serif,system-ui,sans-serif;text-anchor:middle}
+  g[data-k]{cursor:default}
+  g[data-k].on .cap{fill:var(--accent);stroke:var(--accent)}
+  g[data-k].on .capT{fill:#12140c}
+  .ink{stroke:var(--accent);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .inkDim{stroke:rgba(233,230,223,.45);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-dasharray:4 4}
+  .ring{fill:rgba(233,230,223,.07);stroke:rgba(233,230,223,.3);stroke-width:1.4}
+  .knob{fill:var(--accent)}
+  .orT{fill:var(--dim);font:500 12px ui-sans-serif,system-ui,sans-serif;text-anchor:middle}
+
+  /* live readout under a try-it area */
+  .live{text-align:center;font:600 12.5px/1.4 inherit;color:var(--accent);
+    min-height:17px;margin:8px 0 0}
+  .live.idle{color:var(--dim);font-weight:500}
+
+  /* try-it area for touch */
+  .demo{display:flex;gap:10px;align-items:stretch}
+  .demoStick{position:relative;flex:0 0 116px;height:116px;border-radius:50%;
+    border:1px solid rgba(233,230,223,.28);background:rgba(233,230,223,.05);
+    touch-action:none}
+  .demoStick b{position:absolute;left:50%;top:50%;width:42px;height:42px;
+    margin:-21px 0 0 -21px;border-radius:50%;background:rgba(233,230,223,.35);
+    pointer-events:none}
+  .demoStick.on b{background:var(--accent)}
+  .demoStick s{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font:700 11px/1 inherit;letter-spacing:.06em;color:rgba(233,230,223,.9);
+    text-decoration:none;pointer-events:none}
+  .demoStick.on s{opacity:0}
+  .demoDrag{flex:1;display:flex;align-items:center;justify-content:center;
+    border:1px dashed rgba(233,230,223,.28);border-radius:10px;
+    font:500 12px/1.4 inherit;color:var(--dim);text-align:center;padding:8px;
+    touch-action:none}
+  .demoDrag.on{border-color:var(--accent);border-style:solid;color:var(--accent)}
+
+  #introCard .row.check{margin:18px 0 0;padding:12px;border:1px solid var(--line);border-radius:9px}
+  #introCard .row.check label{font-size:13px;color:var(--ink);font-weight:500}
+  #introNote{font-size:11.5px;color:var(--dim);line-height:1.5;margin:8px 0 0}
+  #introGo{margin-top:16px}
+  #introBack{margin-top:8px;font-size:12px;padding:9px 0;color:var(--dim)}
 
   @media (max-width:520px){dt{float:none;width:auto}dd{margin-left:0;margin-bottom:8px}}
 </style>
@@ -208,10 +281,10 @@
       <input type="checkbox" id="snap">
     </div>
     <div class="row check">
-      <label for="walk">Walk mode</label>
-      <input type="checkbox" id="walk">
+      <label for="drone">Drone mode</label>
+      <input type="checkbox" id="drone">
     </div>
-    <p id="walkNote"></p>
+    <p id="droneNote"></p>
   </div>
 
   <div class="grp">
@@ -259,8 +332,9 @@
     <dl>
       <dt>Click</dt><dd>take the mouse</dd>
       <dt>W A S D</dt><dd>move</dd>
-      <dt>R / F</dt><dd>up / down</dd>
+      <dt>Arrows</dt><dd>move, same as W A S D</dd>
       <dt>Q / E</dt><dd>turn</dd>
+      <dt>R / F</dt><dd>up / down, drone mode only</dd>
       <dt>Shift</dt><dd>speed up</dd>
       <dt>H</dt><dd>hide this panel</dd>
     </dl>
@@ -274,7 +348,33 @@
 
 <button id="reopen">Settings</button>
 
+<div id="intro">
+  <div id="introCard" class="pick">
+
+    <div id="stepPick">
+      <h2>What are you using?</h2>
+      <p class="lede">Pick one and the controls get set up to match.</p>
+      <div id="devGrid"></div>
+    </div>
+
+    <div id="stepHow">
+      <h2 id="howTitle">Moving around</h2>
+      <p class="lede" id="introLede"></p>
+      <div id="introBody"></div>
+      <div class="row check">
+        <label for="drone2">Drone mode</label>
+        <input type="checkbox" id="drone2">
+      </div>
+      <p id="introNote"></p>
+      <button class="ghost solid" id="introGo">Start looking</button>
+      <button class="ghost" id="introBack">Different device</button>
+    </div>
+
+  </div>
+</div>
+
 <div id="corners">
+  <button id="help" class="corner" aria-label="How to move" title="How to move">?</button>
   <button id="xrReset" class="corner pill" title="Reset the view">Reset</button>
   <button id="xrPause" class="corner pill" title="Freeze the view">Pause</button>
   <button id="vrFloat" class="corner pill" title="Enter VR">VR</button>
@@ -305,13 +405,7 @@ import {
    ========================================== */
 const SCENES = [
   { id: 'apartment', name: 'Apartment (Interior)', url: './splat/lod-meta.json',
-    scale: 1, height: 0, flip: true, x: -2.303, y: 9.0, z: 1.569, yaw: 0 },
-
-  // Start pose taken from the SuperSplat export: camera at 2,2,-2 looking at the
-  // origin, which is a yaw of 135. Open with ?scene=korenbloem&tune=1 to fit it
-  // properly, then paste the copied line back over this one.
-  { id: 'korenbloem', name: 'De Korenbloem (Exterior)', url: './korenbloem/lod-meta.json',
-    scale: 1, height: 0, flip: true, x: 2, y: 2, z: -2, yaw: 135 }
+    scale: 1, height: 0, flip: true, x: -2.303, y: 9.0, z: 1.569, yaw: 0 }
 ];
 
 /* ---------- settings, all overridable from the URL ---------- */
@@ -332,7 +426,7 @@ const cfg = {
   flip:   P.has('flip') ? P.get('flip') !== '0' : pick(scene.flip, true),
   snap:   P.get('snap') === '1',     // off by default: smooth turning
   onehand: P.get('hands') !== '2',   // one hand is the default on a screen
-  walk:    P.get('walk') === '1',    // off by default: free flight
+  drone:   P.get('drone') === '1',   // off by default, so everyone walks
   tune:    P.get('tune') === '1',    // the authoring tools, hidden unless asked for
 
   // Headsets want a gentler pace than a screen does, so VR runs at half the
@@ -540,8 +634,9 @@ function fly(forward, strafe, lift, metres) {
   if (_rgt.lengthSq() < 1e-8) _rgt.set(1, 0, 0);
   _rgt.normalize();
 
-  if (cfg.walk) {
-    // Stay on one level: flatten the heading and throw the vertical input away.
+  if (!cfg.drone) {
+    // Walking, the default. Stay on one level: flatten the heading and throw the
+    // vertical input away. Drone mode skips all of this and flies free.
     lift = 0;
     const lookUp = _fwd.y > 0;
     _fwd.y = 0;
@@ -657,16 +752,25 @@ function xrInput(dt) {
 
 /* ---------- desktop input ---------- */
 const keys = new Set();
+const HELD = ['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','KeyR','KeyF',
+              'ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftLeft','ShiftRight'];
+
 window.addEventListener('keydown', (e) => {
   if (e.metaKey || e.altKey) return;
+  if (e.code === 'Escape' && document.body.classList.contains('intro')) { showIntro(false); return; }
   if (e.code === 'KeyH') { panel.classList.toggle('away'); return; }
+  if (HELD.includes(e.code)) e.preventDefault();   // arrows would scroll the page
   keys.add(e.code);
+  if (document.body.classList.contains('intro')) paintKeys();
 });
-window.addEventListener('keyup', e => keys.delete(e.code));
+window.addEventListener('keyup', (e) => {
+  keys.delete(e.code);
+  if (document.body.classList.contains('intro')) paintKeys();
+});
 window.addEventListener('blur', () => keys.clear());
 
 canvas.addEventListener('click', () => {
-  if (isTouch) return;
+  if (touchMode) return;
   if (!app.xr || !app.xr.active) canvas.requestPointerLock();
 });
 window.addEventListener('mousemove', (e) => {
@@ -679,8 +783,11 @@ window.addEventListener('mousemove', (e) => {
 function deskInput(dt) {
   if (inXr() || paused) return;
   const on = c => (keys.has(c) ? 1 : 0);
-  const fwd    = on('KeyW') - on('KeyS');
-  const strafe = on('KeyD') - on('KeyA');
+  const any = (...c) => (c.some(k => keys.has(k)) ? 1 : 0);
+
+  // Arrow keys do the same as WASD.
+  const fwd    = any('KeyW', 'ArrowUp')   - any('KeyS', 'ArrowDown');
+  const strafe = any('KeyD', 'ArrowRight') - any('KeyA', 'ArrowLeft');
   const lift   = on('KeyR') - on('KeyF');
   const spin   = on('KeyQ') - on('KeyE');
   const fast   = (keys.has('ShiftLeft') || keys.has('ShiftRight')) ? 4 : 1;
@@ -693,6 +800,9 @@ function deskInput(dt) {
    Same mapping as the headset: left stick is up / down and turning,
    right stick moves where you are looking. Dragging the view aims.  */
 const isTouch = matchMedia('(pointer: coarse)').matches;
+// The browser's guess is only a starting point. Picking a device in the overlay
+// overrides it, which is the whole reason that question is asked.
+let touchMode = isTouch;
 if (isTouch) document.body.classList.add('touch');
 
 function makeStick(id) {
@@ -1120,14 +1230,307 @@ function check(id, key, after) {
 check('flip', 'flip', applyFit);
 check('snap', 'snap');
 check('onehand', 'onehand', applyHands);
-check('walk', 'walk', applyWalk);
+check('drone', 'drone', applyDrone);
 
-function applyWalk() {
-  document.querySelector('#walkNote').textContent = cfg.walk
-    ? 'Held at one height. Looking up or down aims the view but does not lift you, and the up and down controls do nothing.'
-    : 'Free flight. Move where you look, up and down included.';
+/* ---------- how to move overlay ----------
+   Two steps. First which device, then instructions written for that device with
+   something to try on the spot. The choice also decides whether the on screen
+   sticks appear, which beats guessing from the browser. */
+const SEEN_KEY = 'orbit-viewer-intro-v2';
+const DEV_KEY  = 'orbit-viewer-device-v1';
+
+const DEVICES = [
+  { id: 'phone',  name: 'iPhone',     touch: true,
+    art: '<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="10" y="3" width="14" height="28" rx="3"/><line x1="15" y1="27" x2="19" y2="27"/></svg>' },
+  { id: 'tablet', name: 'iPad',       touch: true,
+    art: '<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="4" width="22" height="26" rx="3"/><line x1="15" y1="26" x2="19" y2="26"/></svg>' },
+  { id: 'laptop', name: 'Laptop',     touch: false,
+    art: '<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="7" width="22" height="15" rx="2"/><path d="M3 26 h28"/></svg>' },
+  { id: 'vr',     name: 'VR headset', touch: false,
+    art: '<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="10" width="30" height="15" rx="5"/><path d="M14 25 l3-4 l3 4"/></svg>' }
+];
+
+const devOf = id => DEVICES.find(d => d.id === id) || null;
+
+function cap(code, x, y, label, w) {
+  w = w || 30;
+  return '<g data-k="' + code + '">' +
+    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="30" rx="7" class="cap"/>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + 20) + '" class="capT">' + label + '</text></g>';
 }
-applyWalk();
+
+const ART_KEYS =
+  '<svg viewBox="0 0 290 86" class="art" role="img" aria-label="W A S D or the arrow keys">' +
+    cap('KeyW', 37, 4, 'W') + cap('KeyA', 3, 40, 'A') + cap('KeyS', 37, 40, 'S') + cap('KeyD', 71, 40, 'D') +
+    '<text x="145" y="60" class="orT">or</text>' +
+    cap('ArrowUp', 219, 4, '\u2191') + cap('ArrowLeft', 185, 40, '\u2190') +
+    cap('ArrowDown', 219, 40, '\u2193') + cap('ArrowRight', 253, 40, '\u2192') +
+  '</svg>';
+
+const ART_TURN =
+  '<svg viewBox="0 0 290 44" class="art" role="img" aria-label="Q and E turn, Shift speeds up">' +
+    cap('KeyQ', 40, 4, 'Q') + cap('KeyE', 78, 4, 'E') +
+    '<text x="145" y="26" class="orT">and</text>' +
+    cap('ShiftLeft', 176, 4, 'Shift', 74) +
+  '</svg>';
+
+const ART_MOUSE =
+  '<svg viewBox="0 0 290 86" class="art" role="img" aria-label="Move the mouse to look around">' +
+    '<rect x="123" y="14" width="44" height="62" rx="22" class="cap"/>' +
+    '<line x1="145" y1="26" x2="145" y2="40" class="cap" stroke-width="1.4"/>' +
+    '<path d="M104 45 H52" class="ink"/><path d="M62 37 L52 45 L62 53" class="ink"/>' +
+    '<path d="M186 45 H238" class="ink"/><path d="M228 37 L238 45 L228 53" class="ink"/>' +
+    '<path d="M145 8 C110 8 82 22 70 34" class="inkDim"/>' +
+    '<path d="M145 8 C180 8 208 22 220 34" class="inkDim"/>' +
+  '</svg>';
+
+const DEMO_TOUCH =
+  '<div class="demo">' +
+    '<div class="demoStick" id="demoStick"><b></b><s>MOVE</s></div>' +
+    '<div class="demoDrag" id="demoDrag">drag here<br>to look</div>' +
+  '</div><p class="live idle" id="demoLive">Try both, nothing here moves the scan</p>';
+
+function block(art, title, text) {
+  return '<div class="how">' + art + '<b>' + title + '</b><span>' + text + '</span></div>';
+}
+
+const introCard = document.querySelector('#introCard');
+const introLede = document.querySelector('#introLede');
+const introBody = document.querySelector('#introBody');
+const introNote = document.querySelector('#introNote');
+const howTitle  = document.querySelector('#howTitle');
+const introGo   = document.querySelector('#introGo');
+const drone2    = document.querySelector('#drone2');
+
+/* ---- what the keys are doing right now ---- */
+function keyStory() {
+  const any = (...c) => c.some(k => keys.has(k));
+  const bits = [];
+  if (any('KeyW', 'ArrowUp'))    bits.push('forward');
+  if (any('KeyS', 'ArrowDown'))  bits.push('back');
+  if (any('KeyA', 'ArrowLeft'))  bits.push('left');
+  if (any('KeyD', 'ArrowRight')) bits.push('right');
+  if (any('KeyQ')) bits.push('turning left');
+  if (any('KeyE')) bits.push('turning right');
+  if (cfg.drone && any('KeyR')) bits.push('up');
+  if (cfg.drone && any('KeyF')) bits.push('down');
+  if (any('ShiftLeft', 'ShiftRight')) bits.push('faster');
+  return bits.join('  \u00b7  ');
+}
+
+function paintKeys() {
+  const caps = introBody.querySelectorAll('g[data-k]');
+  if (!caps.length) return;
+  caps.forEach((el) => {
+    let held = keys.has(el.dataset.k);
+    if (el.dataset.k === 'ShiftLeft') held = keys.has('ShiftLeft') || keys.has('ShiftRight');
+    el.classList.toggle('on', held);
+  });
+  const live = document.querySelector('#keyLive');
+  if (!live) return;
+  const story = keyStory();
+  live.textContent = story || 'Hold a key and watch it light up';
+  live.classList.toggle('idle', !story);
+}
+
+/* ---- a stick and a drag pad to practise on ---- */
+function wireTouchDemo() {
+  const stick = document.querySelector('#demoStick');
+  const drag = document.querySelector('#demoDrag');
+  const live = document.querySelector('#demoLive');
+  if (!stick || !drag || !live) return;
+
+  const knob = stick.querySelector('b');
+  const r = 38;
+  let sid = null, did = null, dx0 = 0, dy0 = 0;
+
+  const tell = (msg) => {
+    live.textContent = msg || 'Try both, nothing here moves the scan';
+    live.classList.toggle('idle', !msg);
+  };
+
+  const onStick = (e) => {
+    const box = stick.getBoundingClientRect();
+    let dx = e.clientX - (box.left + box.width / 2);
+    let dy = e.clientY - (box.top + box.height / 2);
+    const len = Math.hypot(dx, dy);
+    if (len > r) { dx = dx / len * r; dy = dy / len * r; }
+    knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+    const bits = [];
+    if (dy < -10) bits.push('forward'); else if (dy > 10) bits.push('back');
+    if (dx > 10) bits.push('right'); else if (dx < -10) bits.push('left');
+    tell(bits.length ? 'Moving ' + bits.join(' and ') : 'Push it further');
+  };
+
+  stick.addEventListener('pointerdown', (e) => {
+    sid = e.pointerId;
+    try { stick.setPointerCapture(e.pointerId); } catch (err) { console.error(err); }
+    stick.classList.add('on'); onStick(e); e.preventDefault();
+  });
+  stick.addEventListener('pointermove', (e) => { if (sid === e.pointerId) onStick(e); });
+  const dropStick = (e) => {
+    if (e && sid !== e.pointerId) return;
+    sid = null; knob.style.transform = ''; stick.classList.remove('on'); tell('');
+  };
+  stick.addEventListener('pointerup', dropStick);
+  stick.addEventListener('pointercancel', dropStick);
+  stick.addEventListener('lostpointercapture', dropStick);
+
+  drag.addEventListener('pointerdown', (e) => {
+    did = e.pointerId; dx0 = e.clientX; dy0 = e.clientY;
+    try { drag.setPointerCapture(e.pointerId); } catch (err) { console.error(err); }
+    drag.classList.add('on'); tell('Now slide your finger'); e.preventDefault();
+  });
+  drag.addEventListener('pointermove', (e) => {
+    if (did !== e.pointerId) return;
+    const dx = e.clientX - dx0, dy = e.clientY - dy0;
+    const bits = [];
+    if (Math.abs(dx) > 8) bits.push(dx > 0 ? 'turning left' : 'turning right');
+    if (Math.abs(dy) > 8) bits.push(dy > 0 ? 'looking up' : 'looking down');
+    tell(bits.length ? bits.join(' and ') : 'Now slide your finger');
+  });
+  const dropDrag = (e) => {
+    if (e && did !== e.pointerId) return;
+    did = null; drag.classList.remove('on'); tell('');
+  };
+  drag.addEventListener('pointerup', dropDrag);
+  drag.addEventListener('pointercancel', dropDrag);
+  drag.addEventListener('lostpointercapture', dropDrag);
+}
+
+/* ---- the instruction step ---- */
+function paintIntro() {
+  const d = devOf(cfg.device);
+  if (!d) return;
+
+  howTitle.textContent = 'Moving around on ' + d.name;
+  drone2.checked = cfg.drone;
+
+  if (d.id === 'vr') {
+    introLede.textContent = 'Put the headset on first, then press the green button below.';
+    introBody.innerHTML =
+      '<div class="how"><b>Left stick</b><span>Turn left and right. Up and down does nothing while walking.</span></div>' +
+      '<div class="how"><b>Right stick</b><span>Move. You go where you are looking, held at one height.</span></div>' +
+      '<div class="how"><b>Triggers</b><span>Right speeds you up, left slows you down.</span></div>' +
+      '<div class="how"><b>Grip</b><span>Freezes the view so you can hand the headset to someone.</span></div>' +
+      '<div class="how"><b>A or X</b><span>Back to the start. <b style="display:inline">B or Y</b> leaves VR.</span></div>';
+    introNote.textContent = cfg.drone
+      ? 'Drone mode is on, so the left stick also flies you up and down.'
+      : 'Walking. Your height never changes, which is far easier on the stomach.';
+    introGo.textContent = 'Enter VR';
+    return;
+  }
+
+  if (d.touch) {
+    introLede.textContent = d.id === 'tablet'
+      ? 'One thumb moves you, the other hand points the camera.'
+      : 'One thumb moves you, the other finger points the camera.';
+    introBody.innerHTML =
+      block(DEMO_TOUCH, 'Try it here',
+        'The stick moves you forward, back, left and right. Drag the other side to look and turn. This box is only practice.');
+    introNote.textContent = cfg.drone
+      ? 'Drone mode is on. You fly where you look, so look up and push forward to rise.'
+      : 'Walking. Your height never changes. Turn this on to fly up and down.';
+    introGo.textContent = 'Start looking';
+    wireTouchDemo();
+    return;
+  }
+
+  introLede.textContent = 'Press a key and watch it light up. Both sets do the same thing.';
+  introBody.innerHTML =
+    block(ART_KEYS, 'Move', 'W A S D, or the arrow keys.') +
+    '<div class="how">' + ART_TURN +
+      '<b>Turn and hurry</b><span>Q and E turn on the spot. Hold Shift to go four times faster.</span>' +
+    '</div>' +
+    block(ART_MOUSE, 'Look around',
+      'Click the view once to hand the mouse over, then move it. Press Escape to get the pointer back.') +
+    '<p class="live idle" id="keyLive">Hold a key and watch it light up</p>';
+  introNote.textContent = cfg.drone
+    ? 'Drone mode is on. R and F fly you straight up and down.'
+    : 'Walking. Your height never changes, so R and F do nothing. Turn this on to fly.';
+  introGo.textContent = 'Start looking';
+  paintKeys();
+}
+
+/* ---- the device step ---- */
+function paintPick() {
+  const grid = document.querySelector('#devGrid');
+  grid.innerHTML = '';
+  for (const d of DEVICES) {
+    const b = document.createElement('button');
+    b.className = 'dev' + (d.id === cfg.device ? ' now' : '');
+    b.innerHTML = d.art + '<span>' + d.name + '</span>';
+    b.addEventListener('click', () => pickDevice(d.id));
+    grid.appendChild(b);
+  }
+}
+
+function applyDevice() {
+  const d = devOf(cfg.device);
+  if (!d) return;
+  touchMode = d.touch;
+  document.body.classList.toggle('touch', d.touch);
+  if (!d.touch) { stickL.letGo(); stickR.letGo(); }
+}
+
+function pickDevice(id) {
+  cfg.device = id;
+  try { localStorage.setItem(DEV_KEY, id); } catch (err) { console.error(err); }
+  applyDevice();
+  paintIntro();
+  introCard.className = 'how';
+}
+
+function showIntro(on, step) {
+  document.body.classList.toggle('intro', on);
+  if (!on) {
+    try { localStorage.setItem(SEEN_KEY, '1'); } catch (err) { console.error(err); }
+    return;
+  }
+  const wantPick = step === 'pick' || !devOf(cfg.device);
+  introCard.className = wantPick ? 'pick' : 'how';
+  paintPick();
+  if (!wantPick) paintIntro();
+}
+
+drone2.addEventListener('change', () => {
+  cfg.drone = drone2.checked;
+  applyDrone();
+  paintIntro();
+});
+
+introGo.addEventListener('click', () => {
+  const vr = cfg.device === 'vr';
+  showIntro(false);
+  if (vr) startVr(XRSPACE_LOCALFLOOR, false);
+});
+document.querySelector('#introBack').addEventListener('click', () => showIntro(true, 'pick'));
+document.querySelector('#intro').addEventListener('click', (e) => {
+  if (e.target.id === 'intro') showIntro(false);
+});
+document.querySelector('#help').addEventListener('click', () => showIntro(true, 'pick'));
+
+// Keeps the settings checkbox, the overlay checkbox and both notes in step.
+function applyDrone() {
+  const box = document.querySelector('#drone');
+  if (box.checked !== cfg.drone) box.checked = cfg.drone;
+  if (drone2.checked !== cfg.drone) drone2.checked = cfg.drone;
+  document.querySelector('#droneNote').textContent = cfg.drone
+    ? 'Flying free. You move where you look, up and down included.'
+    : 'Walking. Your height stays put, and looking up or down only aims the view.';
+}
+applyDrone();
+
+// A remembered or URL-given device skips the picker.
+let savedDev = null;
+try { savedDev = localStorage.getItem(DEV_KEY); } catch (err) { console.error(err); }
+cfg.device = devOf(P.get('device')) ? P.get('device') : (devOf(savedDev) ? savedDev : null);
+applyDevice();
+
+let introSeen = false;
+try { introSeen = localStorage.getItem(SEEN_KEY) === '1'; } catch (err) { console.error(err); }
+if (!introSeen && P.get('intro') !== '0') showIntro(true);
+
 
 /* ---------- scene list ----------
    Switching reloads the page. A scan is hundreds of megabytes on the GPU and a
@@ -1179,7 +1582,8 @@ document.querySelector('#copy').onclick = (e) => {
   q.set('flip', cfg.flip ? '1' : '0');
   q.set('snap', cfg.snap ? '1' : '0');
   q.set('hands', cfg.onehand ? '1' : '2');
-  q.set('walk', cfg.walk ? '1' : '0');
+  q.set('drone', cfg.drone ? '1' : '0');
+  if (cfg.device) q.set('device', cfg.device);
   q.set('vrdetail', Math.round(cfg.vrDetail));
   q.set('vrres', cfg.vrRes);
   q.set('x', start.x.toFixed(3));
