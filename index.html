@@ -214,6 +214,21 @@
   #introGo{margin-top:16px}
   #introBack{margin-top:8px;font-size:12px;padding:9px 0;color:var(--dim)}
 
+
+  /* ---------- on screen key readout ---------- */
+  #keyhud{position:fixed;right:calc(18px + var(--padR));bottom:calc(18px + var(--padB));
+    z-index:8;display:none;flex-direction:column;align-items:center;gap:5px;
+    pointer-events:none;-webkit-user-select:none;user-select:none}
+  body:not(.touch):not(.inxr):not(.intro) #keyhud{display:flex}
+  .kRow{display:flex;gap:5px}
+  .k{width:34px;height:34px;border-radius:8px;
+    background:rgba(13,15,18,.55);border:1px solid rgba(233,230,223,.26);
+    backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;
+    font:600 14px/1 inherit;color:rgba(233,230,223,.78);
+    transition:background .07s linear,color .07s linear,border-color .07s linear}
+  .k.on{background:var(--accent);border-color:var(--accent);color:#12140c}
+
   @media (max-width:520px){dt{float:none;width:auto}dd{margin-left:0;margin-bottom:8px}}
 </style>
 
@@ -379,6 +394,11 @@
   <button id="xrPause" class="corner pill" title="Freeze the view">Pause</button>
   <button id="vrFloat" class="corner pill" title="Enter VR">VR</button>
   <button id="fs" class="corner" aria-label="Full screen" title="Full screen"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+</div>
+
+<div id="keyhud" aria-hidden="true">
+  <div class="kRow"><span class="k" data-slot="up"></span></div>
+  <div class="kRow"><span class="k" data-slot="left"></span><span class="k" data-slot="down"></span><span class="k" data-slot="right"></span></div>
 </div>
 
 <div id="toast"></div>
@@ -750,6 +770,38 @@ function xrInput(dt) {
   }
 }
 
+/* ---------- on screen key readout ----------
+   Sits bottom right on anything with a keyboard. Caps light up as they are held,
+   and the whole set flips to arrow glyphs the moment someone uses the arrows. */
+const keyhud = document.querySelector('#keyhud');
+
+const SLOTS = {
+  up:    ['KeyW', 'ArrowUp'],
+  left:  ['KeyA', 'ArrowLeft'],
+  down:  ['KeyS', 'ArrowDown'],
+  right: ['KeyD', 'ArrowRight']
+};
+const GLYPHS = {
+  wasd:   { up: 'W', left: 'A', down: 'S', right: 'D' },
+  arrows: { up: '\u2191', left: '\u2190', down: '\u2193', right: '\u2192' }
+};
+const hudCaps = keyhud.querySelectorAll('.k');
+let keyStyle = 'wasd';
+
+function noteKeyStyle(code) {
+  if (code.startsWith('Arrow')) keyStyle = 'arrows';
+  else if (code === 'KeyW' || code === 'KeyA' || code === 'KeyS' || code === 'KeyD') keyStyle = 'wasd';
+}
+
+function paintHud() {
+  const g = GLYPHS[keyStyle];
+  for (const el of hudCaps) {
+    const slot = el.dataset.slot;
+    el.textContent = g[slot];
+    el.classList.toggle('on', SLOTS[slot].some(c => keys.has(c)));
+  }
+}
+
 /* ---------- desktop input ---------- */
 const keys = new Set();
 const HELD = ['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','KeyR','KeyF',
@@ -761,13 +813,17 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyH') { panel.classList.toggle('away'); return; }
   if (HELD.includes(e.code)) e.preventDefault();   // arrows would scroll the page
   keys.add(e.code);
+  noteKeyStyle(e.code);
+  paintHud();
   if (document.body.classList.contains('intro')) paintKeys();
 });
 window.addEventListener('keyup', (e) => {
   keys.delete(e.code);
+  paintHud();
   if (document.body.classList.contains('intro')) paintKeys();
 });
-window.addEventListener('blur', () => keys.clear());
+window.addEventListener('blur', () => { keys.clear(); paintHud(); });
+paintHud();   // draw the caps once, now that the held-key set exists
 
 canvas.addEventListener('click', () => {
   if (touchMode) return;
